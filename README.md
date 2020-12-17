@@ -10,7 +10,7 @@ Created smart contracts with tests for all current Harvest Curve Vaults. It was 
 - web UI
 
 ## Known Issues 
-- HBTC
+- HBTC 
 with HBTC `IERC20(hbtc).safeApprove(curve, 0);` fails with
 ```
 Stacktrace:
@@ -19,7 +19,7 @@ Error: Revert (message: SafeERC20: low-level call failed)
 ```
 Next step to try solidity update and `safeIncreaseAllowance`. 
 
-- RenBTC
+- RenBTC 
 even small transactions fail with `revert Too much arb -- Reason given: Too much arb.` 
 
 ## ganache
