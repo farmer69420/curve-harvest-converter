@@ -16,7 +16,7 @@ contract CurveConverterTBTC is ICurveConverter {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
   
-  // hCRV
+  // CRV-TBTC
   address public underlying;
   address public curve;
   address public tbtc;

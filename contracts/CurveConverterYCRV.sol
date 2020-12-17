@@ -16,7 +16,7 @@ contract CurveConverterYCRV is ICurveConverter {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
   
-  // 3CRV
+  // CRV-YPOOL
   address public underlying;
   address public curve;
   address public dai;
@@ -46,7 +46,7 @@ contract CurveConverterYCRV is ICurveConverter {
     address _tusd
   )
   public {
-    require(IVault(_vault).underlying() == _underlying, "vault does not support 3CRV");
+    require(IVault(_vault).underlying() == _underlying, "vault does not support CRV-YPOOL");
     vault = _vault;
     underlying = _underlying;
     curve = _curve;
@@ -56,7 +56,7 @@ contract CurveConverterYCRV is ICurveConverter {
     tusd = _tusd;
   }
   /**
-  * Deposit 3CRV to Harvest Vault.
+  * Deposit CRV-YPOOL to Harvest Vault.
   */
   function depositVault(uint256 amount) internal {
     IERC20(underlying).safeApprove(vault, 0);
@@ -66,7 +66,7 @@ contract CurveConverterYCRV is ICurveConverter {
    }
 
   /**
-  * Deposit DAI, USDC and USDT, convert to the 3CRV tokens and deposit them to the Harvest Vault.
+  * Deposit DAI, USDC and USDT, convert to the CRV-YPOOL tokens and deposit them to the Harvest Vault.
   */
   function depositAll(uint256[] calldata amount, uint256 minimum) external {
     

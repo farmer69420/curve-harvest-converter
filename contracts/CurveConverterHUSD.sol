@@ -16,7 +16,7 @@ contract CurveConverterHUSD is ICurveConverter {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
   
-  // 3CRV
+  // CRV-HUSD
   address public underlying;
   address public curve;
   address public dai;
@@ -55,7 +55,7 @@ contract CurveConverterHUSD is ICurveConverter {
     husd = _husd;
   }
   /**
-  * Deposit 3CRV to Harvest Vault.
+  * Deposit CRV-HUSD to Harvest Vault.
   */
   function depositVault(uint256 amount) internal {
     IERC20(underlying).safeApprove(vault, 0);
@@ -65,7 +65,7 @@ contract CurveConverterHUSD is ICurveConverter {
    }
 
   /**
-  * Deposit DAI, USDC and USDT, convert to the 3CRV tokens and deposit them to the Harvest Vault.
+  * Deposit DAI, USDC and USDT, convert to the CRV-HUSD tokens and deposit them to the Harvest Vault.
   */
   function depositAll(uint256[] calldata amount, uint256 minimum) external {
    

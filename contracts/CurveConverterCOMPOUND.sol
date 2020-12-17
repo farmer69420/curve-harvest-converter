@@ -16,7 +16,7 @@ contract CurveConverterCOMPOUND is ICurveConverter {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
   
-  // 3CRV
+  // CRV-COMPOUND
   address public underlying;
   address public curve;
   address public dai;
@@ -47,7 +47,7 @@ contract CurveConverterCOMPOUND is ICurveConverter {
     usdc = _usdc;
   }
   /**
-  * Deposit cCRV to Harvest Vault.
+  * Deposit CRV-COMPOUND to Harvest Vault.
   */
   function depositVault(uint256 amount) internal {
     IERC20(underlying).safeApprove(vault, 0);
@@ -57,7 +57,7 @@ contract CurveConverterCOMPOUND is ICurveConverter {
    }
 
   /**
-  * Deposit DAI, USDC, convert to the cCRV tokens and deposit them to the Harvest Vault.
+  * Deposit DAI, USDC, convert to the CRV-COMPOUND tokens and deposit them to the Harvest Vault.
   */
   function depositAll(uint256[] calldata amount, uint256 minimum) external {
    

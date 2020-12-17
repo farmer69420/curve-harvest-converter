@@ -16,7 +16,7 @@ contract CurveConverterUSDN is ICurveConverter {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
   
-  // 3CRV
+  // CRV-USDN
   address public underlying;
   address public curve;
   address public dai;
@@ -65,7 +65,7 @@ contract CurveConverterUSDN is ICurveConverter {
    }
 
   /**
-  * Deposit DAI, USDC and USDT, USDN convert to the 3CRV tokens and deposit them to the Harvest Vault.
+  * Deposit DAI, USDC and USDT, USDN convert to the CRV-USDN tokens and deposit them to the Harvest Vault.
   */
   function depositAll(uint256[] calldata amount, uint256 minimum) external {
    

@@ -16,7 +16,7 @@ contract CurveConverterHBTC is ICurveConverter {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
   
-  // hCRV
+  // CRV-HBTC
   address public underlying;
   address public curve;
   address public hbtc;
@@ -47,7 +47,7 @@ contract CurveConverterHBTC is ICurveConverter {
     wbtc = _wbtc;
   }
   /**
-  * Deposit hCRV to Harvest Vault.
+  * Deposit CRV-HBTC to Harvest Vault.
   */
   function depositVault(uint256 amount) internal {
     IERC20(underlying).safeApprove(vault, 0);
@@ -57,7 +57,7 @@ contract CurveConverterHBTC is ICurveConverter {
    }
 
   /**
-  * Deposit hbtc and/or wbtc, convert to the hCRV tokens and deposit them to the Harvest Vault.
+  * Deposit hbtc and/or wbtc, convert to the CRV-HBTC tokens and deposit them to the Harvest Vault.
   */
   function depositAll(uint256[] calldata amount, uint256 minimum) external {
    
