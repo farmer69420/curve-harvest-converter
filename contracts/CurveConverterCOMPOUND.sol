@@ -5,12 +5,12 @@ import "@openzeppelin/contracts/math/Math.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "./interfaces/ICurve3Pool.sol";
+import "./interfaces/ICurveCompoundDeposit.sol";
 import "./interfaces/IVault.sol";
 
 
 
-contract CurveConverter3CRV {
+contract CurveConverterCOMPOUND {
   using Address for address;
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -20,19 +20,17 @@ contract CurveConverter3CRV {
   address public curve;
   address public dai;
   address public usdc;
-  address public usdt;
   address public vault;
 
   event DepositVault(uint256 amount);
-  event Deposit3pool(uint256 _amountDai, uint256 _amountUsdc,uint256 _amountUsdt, uint256 underlyingBalance);
+  event DepositCurve(uint256 _amountDai, uint256 _amountUsdc, uint256 underlyingBalance);
 
   constructor(
     address _vault,
     address _underlying,
     address _curve,
     address _dai,
-    address _usdc,
-    address _usdt
+    address _usdc
   )
   public {
     require(IVault(_vault).underlying() == _underlying, "vault does not support 3CRV");
@@ -41,10 +39,9 @@ contract CurveConverter3CRV {
     curve = _curve;
     dai = _dai;
     usdc = _usdc;
-    usdt = _usdt;
   }
   /**
-  * Deposit 3CRV to Harvest Vault.
+  * Deposit cCRV to Harvest Vault.
   */
   function depositVault(uint256 amount) internal {
     IERC20(underlying).safeApprove(vault, 0);
@@ -56,11 +53,11 @@ contract CurveConverter3CRV {
    }
 
   /**
-  * Deposit DAI, USDC and USDT, convert to the 3CRV tokens and deposit them to the Harvest Vault.
+  * Deposit DAI, USDC, convert to the cCRV tokens and deposit them to the Harvest Vault.
   */
-  function depositAll(uint256 amountDai, uint256 amountUsdc, uint256 amountUsdt) public {
+  function depositAll(uint256 amountDai, uint256 amountUsdc) public {
 
-    uint256 amountUnderlying = depositCurve(amountDai, amountUsdc, amountUsdt);
+    uint256 amountUnderlying = depositCurve(amountDai, amountUsdc);
 
     depositVault(amountUnderlying);
   }
@@ -70,10 +67,9 @@ contract CurveConverter3CRV {
   */
   function depositCurve(
     uint256 _amountDai, 
-    uint256 _amountUsdc, 
-    uint256 _amountUsdt
+    uint256 _amountUsdc
     ) internal returns (uint256) {
-    require(_amountDai > 0 || _amountUsdc > 0 || _amountUsdt > 0, "nothing to deposit");
+    require(_amountDai > 0 || _amountUsdc > 0, "nothing to deposit");
     if (_amountDai > 0) {
       IERC20(dai).safeTransferFrom(msg.sender, address(this), _amountDai);
       IERC20(dai).safeApprove(curve, 0);
@@ -84,20 +80,15 @@ contract CurveConverter3CRV {
       IERC20(usdc).safeApprove(curve, 0);
       IERC20(usdc).safeApprove(curve, _amountUsdc);
     }
-    if (_amountUsdt > 0) {
-      IERC20(usdt).safeTransferFrom(msg.sender, address(this), _amountUsdt);
-      IERC20(usdt).safeApprove(curve, 0);
-      IERC20(usdt).safeApprove(curve, _amountUsdt);
-    }
    
     uint256 minimum = 0;
 
-    ICurve3Pool(curve).add_liquidity([_amountDai, _amountUsdc, _amountUsdt], minimum);
+    ICurveCompoundDeposit(curve).add_liquidity([_amountDai, _amountUsdc], minimum);
     
     uint256 received = IERC20(underlying).balanceOf(address(this));
     require(received > 0, "nothing received from curve");
 
-    emit Deposit3pool(_amountDai, _amountUsdc, _amountUsdt, received);
+    emit DepositCurve(_amountDai, _amountUsdc, received);
     return received;
   }
 }
