@@ -92,7 +92,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit DAI: "+daiBalance)
         
           await dai.approve(converterYCRV.address, daiBalance, { from: farmer1 });
-          await converterYCRV.depositAll(daiBalance, 0, 0, 0, { from: farmer1 });    
+          await converterYCRV.depositAll([daiBalance, 0, 0, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fYCRV Balance: " + farmerNewBalance)
@@ -105,7 +105,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDC: "+usdcBalance)
         
           await usdc.approve(converterYCRV.address, usdcBalance, { from: farmer1 });
-          await converterYCRV.depositAll(0, usdcBalance, 0, 0, { from: farmer1 });    
+          await converterYCRV.depositAll([0, usdcBalance, 0, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fYCRV Balance: " + farmerNewBalance)
@@ -118,7 +118,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDT: "+usdtBalance)
         
           await usdt.approve(converterYCRV.address, usdtBalance, { from: farmer1 });
-          await converterYCRV.depositAll(0, 0, usdtBalance, 0, { from: farmer1 });    
+          await converterYCRV.depositAll([0, 0, usdtBalance, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fYCRV Balance: " + farmerNewBalance)
@@ -131,7 +131,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit TUSD: "+tusdBalance)
         
           await tusd.approve(converterYCRV.address, tusdBalance, { from: farmer1 });
-          await converterYCRV.depositAll(0, 0, 0, tusdBalance, { from: farmer1 });    
+          await converterYCRV.depositAll([0, 0, 0, tusdBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fYCRV Balance: " + farmerNewBalance)
@@ -151,7 +151,7 @@ if (process.env.MAINNET_FORK) {
           await dai.approve(converterYCRV.address, daiBalance, { from: farmer1 });
           await usdc.approve(converterYCRV.address, usdcBalance, { from: farmer1 });
           await usdt.approve(converterYCRV.address, usdtBalance, { from: farmer1 });
-          await converterYCRV.depositAll(daiBalance, usdcBalance, usdtBalance, 0, { from: farmer1 });    
+          await converterYCRV.depositAll([daiBalance, usdcBalance, usdtBalance, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fYCRV Balance: " + farmerNewBalance)
@@ -172,7 +172,7 @@ if (process.env.MAINNET_FORK) {
           await usdc.approve(converterYCRV.address, usdcBalance, { from: farmer1 });
           await usdt.approve(converterYCRV.address, usdtBalance, { from: farmer1 });
           await tusd.approve(converterYCRV.address, tusdBalance, { from: farmer1 });
-          await converterYCRV.depositAll(daiBalance, usdcBalance, usdtBalance, tusdBalance, { from: farmer1 });    
+          await converterYCRV.depositAll([daiBalance, usdcBalance, usdtBalance, tusdBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fYCRV Balance: " + farmerNewBalance)

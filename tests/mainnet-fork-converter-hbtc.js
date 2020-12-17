@@ -81,7 +81,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit HBTC: "+hbtcBalance);
         
           await hbtc.approve(converterHBTC.address, hbtcBalance, { from: farmer1 });
-          await converterHBTC.depositAll(hbtcBalance, 0, { from: farmer1 });    
+          await converterHBTC.depositAll([hbtcBalance, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fhCRV Balance: " + farmerNewBalance);
@@ -94,7 +94,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit WBTC: "+wbtcBalance)
         
           await wbtc.approve(converterHBTC.address, wbtcBalance, { from: farmer1 });
-          await converterHBTC.depositAll(0, wbtcBalance, { from: farmer1 });    
+          await converterHBTC.depositAll([0, wbtcBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fhCRV Balance: " + farmerNewBalance)
@@ -110,7 +110,7 @@ if (process.env.MAINNET_FORK) {
         
           await hbtc.approve(converterHBTC.address, hbtcBalance, { from: farmer1 });
           await wbtc.approve(converterHBTC.address, wbtcBalance, { from: farmer1 });
-          await converterHBTC.depositAll(hbtcBalance, wbtcBalance, { from: farmer1 });    
+          await converterHBTC.depositAll([hbtcBalance, wbtcBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fhCRV Balance: " + farmerNewBalance)

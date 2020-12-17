@@ -41,7 +41,7 @@ if (process.env.MAINNET_FORK) {
         let vault;
   
         async function setupExternalContracts() {
-          underlying = await IERC20.at(MFC.THREE_POOL_ADDRESS);
+          underlying = await IERC20.at(MFC.THREE_POOL_MIXED_ADDRESS);
           vault = await IERC20.at(MFC.THREE_POOL_VAULT_ADDRESS);
           dai = await IERC20.at(MFC.DAI_ADDRESS);
           usdc = await IERC20.at(MFC.USDC_ADDRESS);
@@ -52,7 +52,7 @@ if (process.env.MAINNET_FORK) {
           converter3CRV = await CurveConverter3CRV.new(
             vault.address,
             underlying.address,
-            MFC.THREE_POOL_CURVE_ADDRESS,
+            MFC.THREE_POOL_DEPOSIT_ADDRESS,
             dai.address,
             usdc.address,
             usdt.address
@@ -86,7 +86,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit DAI: "+daiBalance)
         
           await dai.approve(converter3CRV.address, daiBalance, { from: farmer1 });
-          await converter3CRV.depositAll(daiBalance, 0, 0, { from: farmer1 });    
+          await converter3CRV.depositAll([daiBalance, 0, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer f3CRV Balance: " + farmerNewBalance)
@@ -99,7 +99,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDC: "+usdcBalance)
         
           await usdc.approve(converter3CRV.address, usdcBalance, { from: farmer1 });
-          await converter3CRV.depositAll(0, usdcBalance, 0, { from: farmer1 });    
+          await converter3CRV.depositAll([0, usdcBalance, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer f3CRV Balance: " + farmerNewBalance)
@@ -112,7 +112,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDT: "+usdtBalance)
         
           await usdt.approve(converter3CRV.address, usdtBalance, { from: farmer1 });
-          await converter3CRV.depositAll(0, 0, usdtBalance, { from: farmer1 });    
+          await converter3CRV.depositAll([0, 0, usdtBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer f3CRV Balance: " + farmerNewBalance)
@@ -131,7 +131,7 @@ if (process.env.MAINNET_FORK) {
           await dai.approve(converter3CRV.address, daiBalance, { from: farmer1 });
           await usdc.approve(converter3CRV.address, usdcBalance, { from: farmer1 });
           await usdt.approve(converter3CRV.address, usdtBalance, { from: farmer1 });
-          await converter3CRV.depositAll(daiBalance, usdcBalance, usdtBalance, { from: farmer1 });    
+          await converter3CRV.depositAll([daiBalance, usdcBalance, usdtBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer f3CRV Balance: " + farmerNewBalance)

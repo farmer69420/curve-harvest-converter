@@ -78,8 +78,8 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit renBTC: "+renbtcBalance);
         
           await renbtc.approve(converterRENBTC.address, renbtcBalance, { from: farmer1 });
-          //await converterRENBTC.depositAll(renbtcBalance, 0, { from: farmer1 });    
-          await converterRENBTC.depositAll(100000000, 0, { from: farmer1 });    
+          await converterRENBTC.depositAll([renbtcBalance, 0], 0, { from: farmer1 });    
+        
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fcrvRenWBTC Balance: " + farmerNewBalance);
@@ -92,7 +92,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit WBTC: "+wbtcBalance)
         
           await wbtc.approve(converterRENBTC.address, wbtcBalance, { from: farmer1 });
-          await converterRENBTC.depositAll(0, wbtcBalance, { from: farmer1 });    
+          await converterRENBTC.depositAll([0, wbtcBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fcrvRenWBTC Balance: " + farmerNewBalance)
@@ -109,7 +109,7 @@ if (process.env.MAINNET_FORK) {
         
           await renbtc.approve(converterRENBTC.address, renbtcBalance, { from: farmer1 });
           await wbtc.approve(converterRENBTC.address, wbtcBalance, { from: farmer1 });
-          await converterRENBTC.depositAll(renbtcBalance, wbtcBalance, { from: farmer1 });    
+          await converterRENBTC.depositAll([renbtcBalance, wbtcBalance], 0, { from: farmer1 });    
  
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fcrvRenWBTC Balance: " + farmerNewBalance)

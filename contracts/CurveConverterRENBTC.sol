@@ -6,11 +6,12 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./interfaces/ICurveFiWbtc.sol";
+import "./interfaces/ICurveConverter.sol";
 import "./interfaces/IVault.sol";
 
 
 
-contract CurveConverterRENBTC {
+contract CurveConverterRENBTC is ICurveConverter {
   using Address for address;
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -21,9 +22,14 @@ contract CurveConverterRENBTC {
   address public renbtc;
   address public wbtc;
   address public vault;
-
-  event DepositVault(uint256 amount);
-  event DepositCurve(uint256 _amountRENBTC, uint256 _amountWBTC, uint256 underlyingBalance);
+  
+  /**
+  * Coins index used in Curve Deposit
+  * 0: renBTC
+  * 1: wBTC
+  */
+  enum TokenIndex { RENBTC, WBTC }
+  uint constant N_COINS = 2;
 
   constructor(
     address _vault,
@@ -46,8 +52,6 @@ contract CurveConverterRENBTC {
   function depositVault(uint256 amount) internal {
     IERC20(underlying).safeApprove(vault, 0);
     IERC20(underlying).safeApprove(vault, amount);
-  
-    emit DepositVault(amount);
     
     IVault(vault).depositFor(amount, msg.sender);
    }
@@ -55,41 +59,46 @@ contract CurveConverterRENBTC {
   /**
   * Deposit renbtc and/or wbtc, convert to the crvRenWBTC tokens and deposit them to the Harvest Vault.
   */
-  function depositAll(uint256 amountRENBTC, uint256 amountWBTC) public {
+  function depositAll(uint256[] calldata amount, uint256 minimum) external {
+   
+    // we need to convert to static array
+    uint256[N_COINS] memory _amount;
+    for (uint i = 0; i < N_COINS; i++ ) {
+      _amount[i] = amount[i]; 
+    }
 
-    uint256 amountUnderlying = depositCurvePool(amountRENBTC, amountWBTC);
+    uint256 amountUnderlying = depositCurvePool(_amount, minimum);
 
     depositVault(amountUnderlying);
+  }
+
+  /**
+  * Transfer token from sender and approve it for spending by curve contract
+  */
+  function prepareTransfer(IERC20 token, uint256 amount) internal {
+    if (amount > 0) {
+      token.safeTransferFrom(msg.sender, address(this), amount);
+      token.safeApprove(curve, 0);
+      token.safeApprove(curve, amount);
+    }
   }
 
   /**
   * Uses the Curve protocol to convert the underlying assets into the mixed token.
   */
   function depositCurvePool(
-    uint256 _amountRENBTC, 
-    uint256 _amountWBTC
+    uint256[N_COINS] memory _amount, 
+    uint256 _minimum
     ) internal returns (uint256) {
-    require(_amountRENBTC > 0 || _amountWBTC > 0, "nothing to deposit");
-    
-    if (_amountRENBTC > 0) {
-      IERC20(renbtc).safeTransferFrom(msg.sender, address(this), _amountRENBTC);
-      IERC20(renbtc).safeApprove(curve, 0);
-      IERC20(renbtc).safeApprove(curve, _amountRENBTC);
-    }
-    if (_amountWBTC > 0) {
-      IERC20(wbtc).safeTransferFrom(msg.sender, address(this), _amountWBTC);
-      IERC20(wbtc).safeApprove(curve, 0);
-      IERC20(wbtc).safeApprove(curve, _amountWBTC);
-    }
-   
-    uint256 minimum = 0;
+  
+    prepareTransfer(IERC20(renbtc), _amount[uint(TokenIndex.RENBTC)]);
+    prepareTransfer(IERC20(wbtc), _amount[uint(TokenIndex.WBTC)]);
 
-    ICurveFiWbtc(curve).add_liquidity([_amountRENBTC, _amountWBTC], minimum);
+    ICurveFiWbtc(curve).add_liquidity(_amount, _minimum);
     
     uint256 received = IERC20(underlying).balanceOf(address(this));
-    require(received > 0, "nothing received from curve");
+    require(received > 0, "amount received from curve is less than minimum");
 
-    emit DepositCurve(_amountRENBTC, _amountWBTC, received);
     return received;
   }
 }

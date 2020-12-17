@@ -22,7 +22,7 @@ if (process.env.MAINNET_FORK) {
         let busd;
   
         // external setup
-        let underlyingWhale = MFC.THREE_POOL_WHALE_ADDRESS;
+        //let underlyingWhale = MFC.THREE_POOL_WHALE_ADDRESS;
         let daiWhale = MFC.DAI_WHALE_ADDRESS;
         let usdcWhale = MFC.USDC_WHALE_ADDRESS;
         let usdtWhale = MFC.USDT_WHALE_ADDRESS;
@@ -93,7 +93,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit DAI: "+daiBalance)
         
           await dai.approve(converterBUSD.address, daiBalance, { from: farmer1 });
-          await converterBUSD.depositAll(daiBalance, 0, 0, 0, { from: farmer1 });    
+          await converterBUSD.depositAll([daiBalance, 0, 0, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-BUSD Balance: " + farmerNewBalance)
@@ -106,7 +106,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDC: "+usdcBalance)
         
           await usdc.approve(converterBUSD.address, usdcBalance, { from: farmer1 });
-          await converterBUSD.depositAll(0, usdcBalance, 0, 0, { from: farmer1 });    
+          await converterBUSD.depositAll([0, usdcBalance, 0, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-BUSD Balance: " + farmerNewBalance)
@@ -119,7 +119,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDT: "+usdtBalance)
         
           await usdt.approve(converterBUSD.address, usdtBalance, { from: farmer1 });
-          await converterBUSD.depositAll(0, 0, usdtBalance, 0, { from: farmer1 });    
+          await converterBUSD.depositAll([0, 0, usdtBalance, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-BUSD Balance: " + farmerNewBalance)
@@ -132,7 +132,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit BUSD: "+busdBalance)
         
           await busd.approve(converterBUSD.address, busdBalance, { from: farmer1 });
-          await converterBUSD.depositAll(0, 0, 0, busdBalance, { from: farmer1 });    
+          await converterBUSD.depositAll([0, 0, 0, busdBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-BUSD Balance: " + farmerNewBalance)
@@ -153,7 +153,7 @@ if (process.env.MAINNET_FORK) {
           await usdc.approve(converterBUSD.address, usdcBalance, { from: farmer1 });
           await usdt.approve(converterBUSD.address, usdtBalance, { from: farmer1 });
           await busd.approve(converterBUSD.address, busdBalance, { from: farmer1 });
-          await converterBUSD.depositAll(daiBalance, usdcBalance, usdtBalance, busdBalance, { from: farmer1 });    
+          await converterBUSD.depositAll([daiBalance, usdcBalance, usdtBalance, busdBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-BUSD Balance: " + farmerNewBalance)

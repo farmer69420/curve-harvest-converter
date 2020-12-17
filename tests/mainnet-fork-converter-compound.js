@@ -39,7 +39,7 @@ if (process.env.MAINNET_FORK) {
         let vault;
   
         async function setupExternalContracts() {
-          underlying = await IERC20.at(MFC.CDAI_CUSD_ADDRESS);
+          underlying = await IERC20.at(MFC.COMP_MIXED_ADDRESS);
           vault = await IERC20.at(MFC.COMP_VAULT_ADDRESS);
           dai = await IERC20.at(MFC.DAI_ADDRESS);
           usdc = await IERC20.at(MFC.USDC_ADDRESS);
@@ -79,7 +79,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit DAI: "+daiBalance)
         
           await dai.approve(converterCOMP.address, daiBalance, { from: farmer1 });
-          await converterCOMP.depositAll(daiBalance, 0, { from: farmer1 });    
+          await converterCOMP.depositAll([daiBalance, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-COMP Balance: " + farmerNewBalance)
@@ -92,7 +92,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDC: "+usdcBalance)
         
           await usdc.approve(converterCOMP.address, usdcBalance, { from: farmer1 });
-          await converterCOMP.depositAll(0, usdcBalance, { from: farmer1 });    
+          await converterCOMP.depositAll([0, usdcBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-COMP Balance: " + farmerNewBalance)
@@ -108,7 +108,7 @@ if (process.env.MAINNET_FORK) {
         
           await dai.approve(converterCOMP.address, daiBalance, { from: farmer1 });
           await usdc.approve(converterCOMP.address, usdcBalance, { from: farmer1 });
-          await converterCOMP.depositAll(daiBalance, usdcBalance, { from: farmer1 });    
+          await converterCOMP.depositAll([daiBalance, usdcBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-COMP Balance: " + farmerNewBalance)

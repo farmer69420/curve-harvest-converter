@@ -92,7 +92,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit TBTC: "+tbtcBalance);
         
           await tbtc.approve(converterTBTC.address, tbtcBalance, { from: farmer1 });
-          await converterTBTC.depositAll(tbtcBalance, 0, 0, 0, { from: farmer1 });    
+          await converterTBTC.depositAll([tbtcBalance, 0, 0, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-TBTC Balance: " + farmerNewBalance);
@@ -105,7 +105,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit RenBTC: "+renbtcBalance)
         
           await renbtc.approve(converterTBTC.address, renbtcBalance, { from: farmer1 });
-          await converterTBTC.depositAll(0, renbtcBalance, 0, 0, { from: farmer1 });    
+          await converterTBTC.depositAll([0, renbtcBalance, 0, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-TBTC Balance: " + farmerNewBalance)
@@ -118,7 +118,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit WBTC: "+wbtcBalance)
         
           await wbtc.approve(converterTBTC.address, wbtcBalance, { from: farmer1 });
-          await converterTBTC.depositAll(0, 0, wbtcBalance, 0, { from: farmer1 });    
+          await converterTBTC.depositAll([0, 0, wbtcBalance, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-TBTC Balance: " + farmerNewBalance)
@@ -131,7 +131,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit SBTC: "+sbtcBalance)
         
           await sbtc.approve(converterTBTC.address, sbtcBalance, { from: farmer1 });
-          await converterTBTC.depositAll(0, 0, 0, sbtcBalance, { from: farmer1 });    
+          await converterTBTC.depositAll([0, 0, 0, sbtcBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-TBTC Balance: " + farmerNewBalance)
@@ -154,7 +154,7 @@ if (process.env.MAINNET_FORK) {
           await renbtc.approve(converterTBTC.address, renbtcBalance, { from: farmer1 });
           await wbtc.approve(converterTBTC.address, wbtcBalance, { from: farmer1 });
           await sbtc.approve(converterTBTC.address, sbtcBalance, { from: farmer1 });
-          await converterTBTC.depositAll(tbtcBalance, renbtcBalance, wbtcBalance, sbtcBalance, { from: farmer1 });    
+          await converterTBTC.depositAll([tbtcBalance, renbtcBalance, wbtcBalance, sbtcBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fhCRV Balance: " + farmerNewBalance)

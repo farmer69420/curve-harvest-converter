@@ -6,11 +6,12 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./interfaces/ICurveTBTC.sol";
+import "./interfaces/ICurveConverter.sol";
 import "./interfaces/IVault.sol";
 
 
 
-contract CurveConverterTBTC {
+contract CurveConverterTBTC is ICurveConverter {
   using Address for address;
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -23,9 +24,16 @@ contract CurveConverterTBTC {
   address public wbtc;
   address public sbtc;
   address public vault;
-
-  event DepositVault(uint256 amount);
-  event DepositCurve(uint256 _amountTBTC, uint256 _amountRenBTC, uint256 _amountWBTC, uint256 _amountSBTC, uint256 underlyingBalance);
+  
+  /**
+  * Coins index used in Curve Deposit
+  * 0: tBTC
+  * 1: renBTC
+  * 2: wBTC
+  * 3: sBTC
+   */
+  enum TokenIndex { TBTC, RENBTC, WBTC, SBTC }
+  uint constant N_COINS = 4;
 
   constructor(
     address _vault,
@@ -52,8 +60,6 @@ contract CurveConverterTBTC {
   function depositVault(uint256 amount) internal {
     IERC20(underlying).safeApprove(vault, 0);
     IERC20(underlying).safeApprove(vault, amount);
-  
-    emit DepositVault(amount);
     
     IVault(vault).depositFor(amount, msg.sender);
    }
@@ -61,55 +67,48 @@ contract CurveConverterTBTC {
   /**
   * Deposit tbtc,renbtc,sbtc, wbtc, convert to the CRV-TBTC tokens and deposit them to the Harvest Vault.
   */
-  function depositAll(uint256 amountTBTC, uint256 amountRenBTC, uint256 amountWBTC, uint256 amountSBTC) public {
+  function depositAll(uint256[] calldata amount, uint256 minimum) external {
+   
+    // we need to convert to static array
+    uint256[N_COINS] memory _amount;
+    for (uint i = 0; i < N_COINS; i++ ) {
+      _amount[i] = amount[i]; 
+    }
 
-    uint256 amountUnderlying = depositCurvePool(amountTBTC, amountRenBTC, amountWBTC, amountSBTC);
+    uint256 amountUnderlying = depositCurvePool(_amount, minimum);
 
     depositVault(amountUnderlying);
+  }
+
+  /**
+  * Transfer token from sender and approve it for spending by curve contract
+  */
+  function prepareTransfer(IERC20 token, uint256 amount) internal {
+    if (amount > 0) {
+      token.safeTransferFrom(msg.sender, address(this), amount);
+      token.safeApprove(curve, 0);
+      token.safeApprove(curve, amount);
+    }
   }
 
   /**
   * Uses the Curve protocol to convert the underlying assets into the mixed token.
   */
   function depositCurvePool(
-    uint256 _amountTBTC,
-    uint256 _amountRenBTC, 
-    uint256 _amountWBTC,
-    uint256 _amountSBTC
+    uint256[N_COINS] memory _amount,
+    uint256 _minimum
     ) internal returns (uint256) {
-    require(
-      _amountTBTC > 0 || _amountRenBTC > 0 || _amountWBTC > 0 || _amountSBTC > 0,
-     "nothing to deposit"
-     );
-    if (_amountTBTC > 0) {
-      IERC20(tbtc).safeTransferFrom(msg.sender, address(this), _amountTBTC);
-      IERC20(tbtc).safeApprove(curve, 0);
-      IERC20(tbtc).safeApprove(curve, _amountTBTC);
-    }
-    if (_amountRenBTC > 0) {
-      IERC20(renbtc).safeTransferFrom(msg.sender, address(this), _amountRenBTC);
-      IERC20(renbtc).safeApprove(curve, 0);
-      IERC20(renbtc).safeApprove(curve, _amountRenBTC);
-    }
-    if (_amountWBTC > 0) {
-      IERC20(wbtc).safeTransferFrom(msg.sender, address(this), _amountWBTC);
-      IERC20(wbtc).safeApprove(curve, 0);
-      IERC20(wbtc).safeApprove(curve, _amountWBTC);
-    }
-    if (_amountSBTC > 0) {
-      IERC20(sbtc).safeTransferFrom(msg.sender, address(this), _amountSBTC);
-      IERC20(sbtc).safeApprove(curve, 0);
-      IERC20(sbtc).safeApprove(curve, _amountSBTC);
-    }
-   
-    uint256 minimum = 0;
 
-    ICurveTBTC(curve).add_liquidity([_amountTBTC, _amountRenBTC, _amountWBTC, _amountSBTC], minimum);
+    prepareTransfer(IERC20(tbtc), _amount[uint(TokenIndex.TBTC)]);
+    prepareTransfer(IERC20(renbtc), _amount[uint(TokenIndex.RENBTC)]);
+    prepareTransfer(IERC20(wbtc), _amount[uint(TokenIndex.WBTC)]);
+    prepareTransfer(IERC20(sbtc), _amount[uint(TokenIndex.SBTC)]);
+   
+    ICurveTBTC(curve).add_liquidity(_amount, _minimum);
     
     uint256 received = IERC20(underlying).balanceOf(address(this));
-    require(received > 0, "nothing received from curve");
+    require(received > 0, "amount received from curve is less than minimum");
 
-    emit DepositCurve(_amountTBTC, _amountRenBTC, _amountWBTC, _amountSBTC, received);
     return received;
   }
 }

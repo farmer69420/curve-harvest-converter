@@ -6,11 +6,12 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./interfaces/ICurveCompoundDeposit.sol";
+import "./interfaces/ICurveConverter.sol";
 import "./interfaces/IVault.sol";
 
 
 
-contract CurveConverterCOMPOUND {
+contract CurveConverterCOMPOUND is ICurveConverter {
   using Address for address;
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -22,8 +23,13 @@ contract CurveConverterCOMPOUND {
   address public usdc;
   address public vault;
 
-  event DepositVault(uint256 amount);
-  event DepositCurve(uint256 _amountDai, uint256 _amountUsdc, uint256 underlyingBalance);
+  /**
+  * Coins index used in Curve Deposit
+  * 0: DAI
+  * 1: USDC
+   */
+  enum TokenIndex { DAI, USDC }
+  uint constant N_COINS = 2;
 
   constructor(
     address _vault,
@@ -46,8 +52,6 @@ contract CurveConverterCOMPOUND {
   function depositVault(uint256 amount) internal {
     IERC20(underlying).safeApprove(vault, 0);
     IERC20(underlying).safeApprove(vault, amount);
-  
-    emit DepositVault(amount);
     
     IVault(vault).depositFor(amount, msg.sender);
    }
@@ -55,40 +59,46 @@ contract CurveConverterCOMPOUND {
   /**
   * Deposit DAI, USDC, convert to the cCRV tokens and deposit them to the Harvest Vault.
   */
-  function depositAll(uint256 amountDai, uint256 amountUsdc) public {
+  function depositAll(uint256[] calldata amount, uint256 minimum) external {
+   
+    // we need to convert to static array
+    uint256[N_COINS] memory _amount;
+    for (uint i = 0; i < N_COINS; i++ ) {
+      _amount[i] = amount[i]; 
+    }
 
-    uint256 amountUnderlying = depositCurve(amountDai, amountUsdc);
+    uint256 amountUnderlying = depositCurve(_amount, minimum);
 
     depositVault(amountUnderlying);
+  }
+
+    /**
+  * Transfer token from sender and approve it for spending by curve contract
+  */
+  function prepareTransfer(IERC20 token, uint256 amount) internal {
+    if (amount > 0) {
+      token.safeTransferFrom(msg.sender, address(this), amount);
+      token.safeApprove(curve, 0);
+      token.safeApprove(curve, amount);
+    }
   }
 
   /**
   * Uses the Curve protocol to convert the underlying assets into the mixed token.
   */
   function depositCurve(
-    uint256 _amountDai, 
-    uint256 _amountUsdc
+    uint256[N_COINS] memory _amount, 
+    uint256 _minimum
     ) internal returns (uint256) {
-    require(_amountDai > 0 || _amountUsdc > 0, "nothing to deposit");
-    if (_amountDai > 0) {
-      IERC20(dai).safeTransferFrom(msg.sender, address(this), _amountDai);
-      IERC20(dai).safeApprove(curve, 0);
-      IERC20(dai).safeApprove(curve, _amountDai);
-    }
-    if (_amountUsdc > 0) {
-      IERC20(usdc).safeTransferFrom(msg.sender, address(this), _amountUsdc);
-      IERC20(usdc).safeApprove(curve, 0);
-      IERC20(usdc).safeApprove(curve, _amountUsdc);
-    }
-   
-    uint256 minimum = 0;
 
-    ICurveCompoundDeposit(curve).add_liquidity([_amountDai, _amountUsdc], minimum);
+    prepareTransfer(IERC20(dai), _amount[uint(TokenIndex.DAI)]);
+    prepareTransfer(IERC20(usdc), _amount[uint(TokenIndex.USDC)]);
+
+    ICurveCompoundDeposit(curve).add_liquidity(_amount, _minimum);
     
     uint256 received = IERC20(underlying).balanceOf(address(this));
-    require(received > 0, "nothing received from curve");
+    require(received > 0, "amount received from curve is less than minimum");
 
-    emit DepositCurve(_amountDai, _amountUsdc, received);
     return received;
   }
 }

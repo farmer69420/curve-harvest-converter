@@ -43,7 +43,7 @@ if (process.env.MAINNET_FORK) {
         let vault;
   
         async function setupExternalContracts() {
-          underlying = await IERC20.at(MFC.USDN_POOL_ADDRESS);
+          underlying = await IERC20.at(MFC.USDN_MIXED_ADDRESS);
           vault = await IERC20.at(MFC.USDN_VAULT_ADDRESS);
           dai = await IERC20.at(MFC.DAI_ADDRESS);
           usdc = await IERC20.at(MFC.USDC_ADDRESS);
@@ -77,7 +77,7 @@ if (process.env.MAINNET_FORK) {
           await dai.transfer(farmer1, daiBalance, { from: daiWhale });
           await usdc.transfer(farmer1, usdcBalance, { from: usdcWhale });
           await usdt.transfer(farmer1, usdtBalance, { from: usdtWhale });
-          await usdn.transfer(farmer1, usdnBalance, { from: usdnWhale });
+          if (usdnBalance > 0) { await usdn.transfer(farmer1, usdnBalance, { from: usdnWhale }) };
         }
 
         beforeEach(async function () {
@@ -86,14 +86,14 @@ if (process.env.MAINNET_FORK) {
             await setupBalance();
           });
     
-/**
+
         it("A farmer depositing DAI", async function () {
           let farmerOldBalance = new BigNumber(await vault.balanceOf(farmer1));
           let daiBalance = new BigNumber(Math.floor(await dai.balanceOf(farmer1) / 2));
           console.log("deposit DAI: "+daiBalance)
         
           await dai.approve(converterUSDN.address, daiBalance, { from: farmer1 });
-          await converterUSDN.depositAll(daiBalance, 0, 0, 0, { from: farmer1 });    
+          await converterUSDN.depositAll([0, daiBalance, 0, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-USDN Balance: " + farmerNewBalance)
@@ -106,7 +106,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDC: "+usdcBalance)
         
           await usdc.approve(converterUSDN.address, usdcBalance, { from: farmer1 });
-          await converterUSDN.depositAll(0, usdcBalance, 0, 0, { from: farmer1 });    
+          await converterUSDN.depositAll([0, 0, usdcBalance, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-USDN Balance: " + farmerNewBalance)
@@ -119,7 +119,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDT: "+usdtBalance)
         
           await usdt.approve(converterUSDN.address, usdtBalance, { from: farmer1 });
-          await converterUSDN.depositAll(0, 0, usdtBalance, 0, { from: farmer1 });    
+          await converterUSDN.depositAll([0, 0, 0, usdtBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-USDN Balance: " + farmerNewBalance)
@@ -132,7 +132,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDN: "+usdnBalance)
         
           await usdn.approve(converterUSDN.address, usdnBalance, { from: farmer1 });
-          await converterUSDN.depositAll(0, 0, 0, usdnBalance, { from: farmer1 });    
+          await converterUSDN.depositAll([usdnBalance, 0, 0, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-USDN Balance: " + farmerNewBalance)
@@ -151,13 +151,13 @@ if (process.env.MAINNET_FORK) {
           await dai.approve(converterUSDN.address, daiBalance, { from: farmer1 });
           await usdc.approve(converterUSDN.address, usdcBalance, { from: farmer1 });
           await usdt.approve(converterUSDN.address, usdtBalance, { from: farmer1 });
-          await converterUSDN.depositAll(daiBalance, usdcBalance, usdtBalance, 0, { from: farmer1 });    
+          await converterUSDN.depositAll([0, daiBalance, usdcBalance, usdtBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fUSDN Balance: " + farmerNewBalance)
           Utils.assertBNGt(farmerNewBalance, farmerOldBalance);
         });
-           */   
+            
         it("A farmer depositing DAI, USDC, USDT, USDN", async function () {
           let farmerOldBalance = new BigNumber(await vault.balanceOf(farmer1));
           let daiBalance = new BigNumber(Math.floor(await dai.balanceOf(farmer1) / 2));
@@ -173,7 +173,7 @@ if (process.env.MAINNET_FORK) {
           await usdc.approve(converterUSDN.address, usdcBalance, { from: farmer1 });
           await usdt.approve(converterUSDN.address, usdtBalance, { from: farmer1 });
           await usdn.approve(converterUSDN.address, usdnBalance, { from: farmer1 });
-          await converterUSDN.depositAll(daiBalance, usdcBalance, usdtBalance, usdnBalance, { from: farmer1 });    
+          await converterUSDN.depositAll([usdnBalance, daiBalance, usdcBalance, usdtBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fUSDN Balance: " + farmerNewBalance)

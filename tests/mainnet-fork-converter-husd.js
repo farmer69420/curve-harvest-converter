@@ -41,7 +41,7 @@ if (process.env.MAINNET_FORK) {
         let vault;
   
         async function setupExternalContracts() {
-          underlying = await IERC20.at(MFC.HUSD_POOL_ADDRESS);
+          underlying = await IERC20.at(MFC.HUSD_MIXED_ADDRESS);
           vault = await IERC20.at(MFC.HUSD_VAULT_ADDRESS);
           dai = await IERC20.at(MFC.DAI_ADDRESS);
           usdc = await IERC20.at(MFC.USDC_ADDRESS);
@@ -91,7 +91,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit DAI: "+daiBalance)
         
           await dai.approve(converterHUSD.address, daiBalance, { from: farmer1 });
-          await converterHUSD.depositAll(daiBalance, 0, 0, 0, { from: farmer1 });    
+          await converterHUSD.depositAll([0, daiBalance, 0, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-HUSD Balance: " + farmerNewBalance)
@@ -104,7 +104,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDC: "+usdcBalance)
         
           await usdc.approve(converterHUSD.address, usdcBalance, { from: farmer1 });
-          await converterHUSD.depositAll(0, usdcBalance, 0, 0, { from: farmer1 });    
+          await converterHUSD.depositAll([0, 0, usdcBalance, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-HUSD Balance: " + farmerNewBalance)
@@ -117,7 +117,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit USDT: "+usdtBalance)
         
           await usdt.approve(converterHUSD.address, usdtBalance, { from: farmer1 });
-          await converterHUSD.depositAll(0, 0, usdtBalance, 0, { from: farmer1 });    
+          await converterHUSD.depositAll([0, 0, 0, usdtBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-HUSD Balance: " + farmerNewBalance)
@@ -129,7 +129,7 @@ if (process.env.MAINNET_FORK) {
           console.log("deposit HUSD: "+usdtBalance)
         
           await husd.approve(converterHUSD.address, husdBalance, { from: farmer1 });
-          await converterHUSD.depositAll(0, 0, 0, husdBalance, { from: farmer1 });    
+          await converterHUSD.depositAll([husdBalance, 0, 0, 0], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-HUSD Balance: " + farmerNewBalance)
@@ -148,7 +148,7 @@ if (process.env.MAINNET_FORK) {
           await dai.approve(converterHUSD.address, daiBalance, { from: farmer1 });
           await usdc.approve(converterHUSD.address, usdcBalance, { from: farmer1 });
           await usdt.approve(converterHUSD.address, usdtBalance, { from: farmer1 });
-          await converterHUSD.depositAll(daiBalance, usdcBalance, usdtBalance, 0, { from: farmer1 });    
+          await converterHUSD.depositAll([0, daiBalance, usdcBalance, usdtBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-HUSD Balance: " + farmerNewBalance)
@@ -169,7 +169,7 @@ if (process.env.MAINNET_FORK) {
           await usdc.approve(converterHUSD.address, usdcBalance, { from: farmer1 });
           await usdt.approve(converterHUSD.address, usdtBalance, { from: farmer1 });
           await husd.approve(converterHUSD.address, husdBalance, { from: farmer1 });
-          await converterHUSD.depositAll(daiBalance, usdcBalance, usdtBalance, husdBalance, { from: farmer1 });    
+          await converterHUSD.depositAll([husdBalance, daiBalance, usdcBalance, usdtBalance], 0, { from: farmer1 });    
           
           let farmerNewBalance = new BigNumber(await vault.balanceOf(farmer1));
           console.log("farmer fCRV-HUSD Balance: " + farmerNewBalance)
